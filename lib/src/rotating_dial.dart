@@ -23,7 +23,8 @@ class RotatingDialWidget extends StatefulWidget {
 }
 
 class _RotatingDialWidgetState extends State<RotatingDialWidget> {
-  String currentSelectedText = '3:00:00';
+
+  int currentSelectedDial = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +42,7 @@ class _RotatingDialWidgetState extends State<RotatingDialWidget> {
                   ),
                 ),
                 Text(
-                  currentSelectedText,
+                  widget.sections[currentSelectedDial].value,
                   style: TextStyle(
                     color: widget.titleColor,
                   ),
@@ -53,11 +54,73 @@ class _RotatingDialWidgetState extends State<RotatingDialWidget> {
         SizedBox.expand(
           child: CustomPaint(
             painter: DialPainter(
+              sections: widget.sections,
               ringColor: widget.dialColor,
               markerColor: widget.markerColor,
             ),
           ),
         ),
+        SizedBox.expand(
+          child: Center(
+            child: Stack(
+              children: [
+                for (var i = 0; i < widget.sections.length; i++)
+                  RotationTransition(
+                    turns: AlwaysStoppedAnimation(
+                      (180 - i * (360 / widget.sections.length)) / 360,
+                    ),
+                    child: Column(
+                      children: [
+                        SizedBox(height: 35),
+                        // rotate this text 180 degrees
+                        Transform.rotate(
+                          angle: pi,
+                          child: Text(
+                            widget.sections[i].label,
+                            style: TextStyle(
+                              color: widget.textColor,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 100),
+                      ],
+                    ),
+                  ),
+                // RotationTransition(
+                //   turns: AlwaysStoppedAnimation(15 / 360),
+                //   child: Column(
+                //     children: [
+                //       SizedBox(height: 25),
+                //       // rotate this text 180 degrees
+                //       Transform.rotate(
+                //         angle: 90,
+                //         child: Text(
+                //           '15',
+                //           style: TextStyle(color: Colors.red, fontSize: 20),
+                //         ),
+                //       ),
+                //       SizedBox(height: 100),
+                //     ],
+                //   ),
+                // ),
+                // RotationTransition(
+                //   turns: AlwaysStoppedAnimation(50 / 360),
+                //   child: Column(
+                //     children: [
+                //       SizedBox(height: 25),
+                //       Text(
+                //         '30',
+                //         style: TextStyle(color: Colors.red, fontSize: 20),
+                //       ),
+                //       SizedBox(height: 100),
+                //     ],
+                //   ),
+                // ),
+              ],
+            ),
+          ),
+        )
       ],
     );
   }
@@ -77,10 +140,11 @@ class DialPainter extends CustomPainter {
   DialPainter({
     required this.ringColor,
     required this.markerColor,
+    required this.sections,
   });
   Color ringColor;
   Color markerColor;
-  List<RotatingDialSection> sections = [];
+  List<RotatingDialSection> sections;
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => true;
@@ -131,8 +195,6 @@ class DialPainter extends CustomPainter {
       markerSize / 2.1,
       innerCirclePaint,
     );
-
-    
   }
 }
 
